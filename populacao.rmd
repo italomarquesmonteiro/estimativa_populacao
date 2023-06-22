@@ -1,0 +1,78 @@
+---
+title: "Estimativa da população"
+description: "Tabelas de estimativas populacionais para os municípios e para as Unidades da Federação brasileiros em 01.07.2021"
+author:
+  - name: "Ítalo Marques-Monteiro"
+    affiliation: 
+        Department: 
+    affiliation_url: 
+    lattes: http://lattes.cnpq.br/7174985368517137
+    linkedin: linkedin.com/in/ítalo-monteiro-0b2516144
+    researchgate: https://www.researchgate.net/profile/Italo-Monteiro
+    orcid_id: https://orcid.org/0000-0003-4367-1034
+    kaggle: https://www.kaggle.com/talomarquesmonteiro
+    github: https://github.com/italomarquesmonteiro
+
+date: "2023-06-21"
+output: html_document
+---
+
+```{r diretorio}
+
+setwd("C:/Users/italo/Downloads")
+```
+
+o *package* [`{tidyverse}`](https://www.tidyverse.org) possui um ecossistema de packages:
+                           ->[{`ggplot2`}](https://ggplot2.tidyverse.org/).
+                            ->[{`tibble`}](https://tibble.tidyverse.org/).
+                             ->[{`tidyr`}](https://tidyr.tidyverse.org/).
+                              ->[{`dplyr`}](https://dplyr.tidyverse.org/).
+                               ->[{`readr`}](https://readr.tidyverse.org/).
+                                ->[{`purrr`}](https://purrr.tidyverse.org/).
+                                 ->[{`forcats`}](https://forcats.tidyverse.org/).
+
+```{r packages}
+library(conflicted)
+library(tidyverse)
+```
+
+```{r}
+municipios_br <- geobr::read_municipality(code_muni = "all", year = 2020) |>
+    dplyr::glimpse()
+```
+
+
+dados [{IBGE}](https://www.ibge.gov.br)
+[{`estimativa população`}](https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html)
+
+```{r}
+#ibge <- readxl::read_xlsx(
+#    "C:/Users/italo/Downloads/estimativa_pop_2021.xlsx") |>
+#    janitor::clean_names("snake") |>
+#    dplyr::rename(
+#        abbrev_state = uf,
+#        code_state = cod_uf,
+#        code_muni = cod_munic,
+#        name_mu = nome_do_municipio
+#    ) |>
+#    tidyr::unite(codigo,  code_state:code_muni) |>
+#    dplyr::select(codigo, populacao_estimada) |>
+#    readr::write_csv("C:/Users/italo/Downloads/estimativa_pop_2021.csv")
+```
+
+```{r}
+test <- readr::read_csv2("C:/Users/italo/Downloads/estimativa_pop_2021.csv")#|>tibble::view()
+populacao <- municipios_br |>
+    dplyr::left_join(test) |>
+    dplyr::glimpse()
+```
+
+
+```{r}
+populacao |>
+    dplyr::filter(populacao_estimada >= 100000) |>
+    ggplot2::ggplot() +
+    geom_sf(aes(fill = populacao_estimada)) +
+    scale_y_continuous(labels = scales::comma) +
+    viridis::scale_fill_viridis(discrete = FALSE)
+```
